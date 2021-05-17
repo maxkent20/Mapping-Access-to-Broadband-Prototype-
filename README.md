@@ -60,6 +60,9 @@ There will be three deliverables in the form of python scripts:
     - The relationships between fixed broadband access and mobile broadband access
     - Demographic factors and the relationships those have with broadband access.
     - These maps are then converted into .png images for analyses.
+    - I have included six different versions of images that display the various demographic and digital characteristics of Onondaga County.
+    
+5. Four scatter plots that show the relationship between fixed broadband opportunities and racial/income makeup of the block group.
     
 ### Instructions
 
