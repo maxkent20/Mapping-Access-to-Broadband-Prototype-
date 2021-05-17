@@ -69,11 +69,13 @@ There will be three deliverables in the form of python scripts:
 Create a script for collecting (Collect.py)
 
 Downloading necessary files (Shapefiles for geography and mobile providers): 
-    -Two of the data sources for repository will need to be downloaded to the local directory. These shapefiles are associated with the data for deliverable 1a and 1b.
-    1. Download county/blockgroup shapefiles (Deliverables 1a): 
+
+Two of the data sources for repository will need to be downloaded to the local directory. These shapefiles are associated with the data for deliverable 1a and 1b.
+
+1. Download county/blockgroup shapefiles (Deliverables 1a): 
         - Download the county and block group shapefiles from the Census TIGER/Line web interface: https://www.census.gov/cgi-bin/geo/shapefiles/index.php
         - Filter the shapefiles for STATEFP== 36 and COUNTYFP=='067' into pandas dataframes called on_county and census_blockgroups. This will filter the shapefile to only include Onondaga County and the block groups within it.
-    2. Download the shapefiles for mobile broadband (Deliverables 2a):
+2. Download the shapefiles for mobile broadband (Deliverables 2a):
         - Navigate to the FCC website for downloading the shapefiles for each broadband provider (https://broadbandmap.fcc.gov/#/data-download)
         - The shapefiles are organized in hierarchical order by provider and the type of broadband service provided(4G, LTE, and 5G).
         - My analysis only converts the shapefiles from two of the largest mobile broadband providers, Verizon and Sprint, and only the LTE broadband service provided by these two companies into GeoDataFrames. 
@@ -81,7 +83,7 @@ Downloading necessary files (Shapefiles for geography and mobile providers):
         - Now use this bounding box df to filter the mobile broadband geodataframes using the .overlay() method and including the how='intersection' argument. This will filter these national shapefiles to only include the parts of the shapefile that lie within the box surrounding Onondaga County.
 
 API Call (for fixed providers and ACS variables):
-    1. Query for fixed broadband providers: 
+1. Query for fixed broadband providers: 
         - This dataset is organized with every observation representing characteristics for each fixed broadband provider in each census block. Therefore, this is an extremely large dataset.
         - Using the opendata.fcc.gov API, query the observations where blockcode is like '36067' and the maximum download speed is greater then 10 mbps and less than 26 mbps. Again, we do this to limit the broadband strength to include the range at which most individual households consume purchase. 
         - Make this list a pandas dataframe.
@@ -92,7 +94,7 @@ API Call (for fixed providers and ACS variables):
         results = client.get("4kuc-phrr", where= "blockcode like '36067%' AND maxaddown>10 AND maxaddown<26", limit= 100000) 
         
         
-    2. Query American Community Survey data for each block group: 
+2. Query American Community Survey data for each block group: 
         - Create a csv file with the census variables that you want to observe. This prototype only queries variables associated with basic race and socio-economic indicators. 
         - Query the ACS 5 year survey using the https://api.census.gov/data/2018/acs/acs5 website to get the list of variables in your csv for all block groups in Onondaga county.
         - Once you have a succesful connection and a list of queried variables, create a dataframe with the block group name as the index.
@@ -148,6 +150,7 @@ This script will do a couple different things to understand what the data is tel
 
 ### Tips
 
+- When downloading necessary data for mobile broadband and ACS demographic data, you may chose different providers or variables than used for this study. 
 
 
 
