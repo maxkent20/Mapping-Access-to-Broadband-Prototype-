@@ -66,7 +66,8 @@ There will be three deliverables in the form of python scripts:
     
 ### Instructions
 
-#Create a script for collecting (Collect.py)
+Create a script for collecting (Collect.py)
+
 Downloading necessary files (Shapefiles for geography and mobile providers): 
     -Two of the data sources for repository will need to be downloaded to the local directory. These shapefiles are associated with the data for deliverable 1a and 1b.
     1. Download county/blockgroup shapefiles (Deliverables 1a): 
@@ -78,6 +79,7 @@ Downloading necessary files (Shapefiles for geography and mobile providers):
         - My analysis only converts the shapefiles from two of the largest mobile broadband providers, Verizon and Sprint, and only the LTE broadband service provided by these two companies into GeoDataFrames. 
         - Create a bounding box using the .envelope method on the on_county dataframe. From this boundig box series create a geopandas dataframe df. 
         - Now use this bounding box df to filter the mobile broadband geodataframes using the .overlay() method and including the how='intersection' argument. This will filter these national shapefiles to only include the parts of the shapefile that lie within the box surrounding Onondaga County.
+
 API Call (for fixed providers and ACS variables):
     1. Query for fixed broadband providers: 
         - This dataset is organized with every observation representing characteristics for each fixed broadband provider in each census block. Therefore, this is an extremely large dataset.
@@ -112,8 +114,7 @@ API Call (for fixed providers and ACS variables):
         response= requests.get(api, payload)
 
 
-#Create a script for managing these scripts (manage.py)
-This script will manipulate and merge together three of the pandas dataframes we created from the collect.py script: the geographic county/block group dataframe, the fixed provider dataframe, and the ACS variables dataframe.
+Create a script for managing these scripts (manage.py): This script will manipulate and merge together the pandas dataframes we created from the collect.py script.
 
 Manipulation: 
     - Using the fixed providers data set, create summary statistics for each of the variables chosen at the block group level. For my analysis, I look for the total number of broadband providers in each block group. I also analyzed the average, maximum, minimum, and range of upload and download speeds in each block group. 
@@ -130,7 +131,7 @@ Wrangling with the mobile broadband dataset:
     - After you add these area variables, you can calculate the percentage of the block group area that has LTE mobile broadband access from these two providers.
     
 
-#Create a script for analyzing these scripts (analyze.py)
+Create a script for analyzing these scripts (analyze.py)
 This script will do a couple different things to understand what the data is telling us:
 
 1. Plot the relationship between the number of consumers(y axis) and the various demographic indicators (x-axis) including: 
