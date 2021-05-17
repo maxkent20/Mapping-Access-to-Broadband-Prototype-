@@ -20,13 +20,13 @@ on_county= county.query("STATEFP== '36' & COUNTYFP== '067'")
 
 on_border= on_county["geometry"]
 
-#Importing the census tracts
+#Importing the census block group tracts
 
-#census_blockgroups = geopandas.read_file("Mapping files/tl_2020_36_bg/tl_2020_36_bg.shp", dtype= {'TRACTCE':str})
+census_blockgroups = geopandas.read_file("Mapping files/tl_2020_36_bg/tl_2020_36_bg.shp", dtype= {'TRACTCE':str})
 
 #Filtering only to tracts in Onondaga County
 
-#census_blockgroups= census_blockgroups.query("STATEFP== '36' & COUNTYFP== '067'")
+census_blockgroups= census_blockgroups.query("STATEFP== '36' & COUNTYFP== '067'")
 
 #Filtering only to 
 pro_county= on_county.to_crs(epsg=4326)
@@ -50,7 +50,7 @@ df= df.to_crs(epsg=4326)
 #Importing for Verizon, Sprint, T-Mobile, ATT, and U.S. Cellular
 
 
-#Use this geographic parameter to limit how much of these files we are uploading. This saves time for importing large shapefiles and converting them to dataframes. 
+#Use this geographic parameter to limit how much of these files we are uploading. This saves time for importing large shapefiles and converting them to dataframes. Another way for filtering the large mobile broadband providers.
 print(on_border.total_bounds)
 bbox=(-76.491941,  42.771257, -75.896079,  43.268473)
 
@@ -81,8 +81,10 @@ from sodapy import Socrata
 client = Socrata("opendata.fcc.gov", "HXxZ7n7Y449hg6DQagESA4Xz7")
 
 client.timeout = 200
-# First 2000 results, returned as JSON from API / converted to Python list of dictionaries by sodapy.
-#filtering results on those blocks in Onondaga County and where download speed is greater than 10Mbps
+
+
+# First 10000 results, returned as JSON from API / converted to Python list of dictionaries by sodapy.
+# Filtering results on those blocks in Onondaga County.
  
 
 results = client.get("4kuc-phrr", where= "blockcode like '36067%' AND maxaddown>10 AND maxaddown<26", limit= 100000) 
@@ -102,7 +104,7 @@ import pandas as pd
    
 #Import CSV with list of variables
 var_info= pd.read_csv('census_variables.csv')
-var_name= var_info['Name'].to_list()
+var_name= var_info['CensusName'].to_list()
 var_list= ['NAME']+var_name
 var_string= ','.join(var_list)
 
@@ -133,6 +135,7 @@ datarows= row_list[1:]
 
 census_df= pd.DataFrame(columns=colnames, data=datarows)
 census_df=census_df.set_index("NAME")
+
 census_df.to_csv("censusvariables.csv")
 
 

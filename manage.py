@@ -22,7 +22,7 @@ fixedproviders["blockgroup"]= fixedproviders["blockcode"].astype(str).str[:12]
 #Grouping data from fixed providers at the blockgroup level
 fixedproviders_grouped= fixedproviders.groupby('blockgroup').agg(
     num_consumerproviders= pd.NamedAgg(column='consumer', aggfunc=sum), 
-    mode_tech= pd.NamedAgg(column='techcode_char', aggfunc=lambda x: x.value_counts().index[0]),
+    mode_tech= pd.NamedAgg(column='techcode', aggfunc=lambda x: x.value_counts().index[0]),
     mean_max_down= pd.NamedAgg(column='maxaddown', aggfunc='mean'), 
     max_max_down= pd.NamedAgg(column='maxaddown', aggfunc='max'),
     min_max_down= pd.NamedAgg(column='maxaddown', aggfunc='min'), 
@@ -43,7 +43,7 @@ fixedproviders_grouped["group"]= fixedproviders_grouped["blockgroup"].str[11:12]
 
 
 
-#Reading in ACS Census variables
+#Reading in ACS Census dataframe
 census_vars= pd.read_csv("censusvariables.csv", 
                          dtype={'state': str, 'county': str,'tract': str, 'block group': str })
 
@@ -75,21 +75,50 @@ merge_blockgroups= pd.merge(merge_blockgroups, fixedproviders_grouped, how= 'lef
 
 #Doing some grouping by race
 
-merge_blockgroups["perc_black"]= merge_blockgroups['B02009_001E']/merge_blockgroups['B02001_001E']
+merge_blockgroups["perc_black"]= merge_blockgroups['B02001_003E']/merge_blockgroups['B02001_001E']
 merge_blockgroups["perc_white"]= merge_blockgroups['B02001_002E']/merge_blockgroups['B02001_001E']
-merge_blockgroups["perc_native"]= merge_blockgroups['B02001_005E']/merge_blockgroups['B02001_001E']
+merge_blockgroups["perc_native"]= merge_blockgroups['B02001_004E']/merge_blockgroups['B02001_001E']
 
-#Percent mobile
-merge_blockgroups["perc_mobile"]= merge_blockgroups['B19001_001E']/merge_blockgroups['B02001_001E']
+#Percent of population with income 
+merge_blockgroups["perc_income"]= merge_blockgroups['B19001_001E']/merge_blockgroups['B02001_001E']
+
+#Percent of population with income below 10k
+merge_blockgroups["perc_below10"]= merge_blockgroups['B19001_002E']/merge_blockgroups['B19001_001E']
 
 
+Merged= merge_blockgroups
 
 #%%
 
-#Send to geopackage
-merge_blockgroups.set_index('GEOID', inplace=True)
-merge_blockgroups.to_file("blockgroups.gpkg", layer= "merged", driver= "GPKG")
+from shapely.geometry import LineString
+import matplotlib.pyplot as mtplt
 
 
-    
+#Reading the Mobile Broadband(Sprint and Verizon) geopackages
+Verizon_LTE=geopandas.read_file("Verizon.gpkg", layer= "Verizon_LTE")
+Sprint_LTE=geopandas.read_file("Sprint.gpkg", layer= "Sprint_LTE")
+
+
+#Set the crs for the merged geopackage to 4326
+Merged= Merged.to_crs(epsg=4326)
+
+#Get the area of each polygon for each block group 
+Merged["area"] = Merged['geometry'].area
+
+
+#This code overlays the Sprint geopackage on the merged data to look at how much area of 
+#each block is covered by the Sprint mobile broadband. 
+ov_outputSprint = geopandas.overlay(Merged, Sprint_LTE, how="intersection")
+ov_outputSprint.geometry.area
+
+ov_outputVerizon = geopandas.overlay(Merged, Verizon_LTE, how="intersection")
+ov_outputVerizon.geometry.area
+
+Merged["area_sprint"]= ov_outputSprint.geometry.area
+Merged["area_verizon"]= ov_outputVerizon.geometry.area
+
+Merged["perc_sprint"]= Merged["area_sprint"]/Merged["area"]
+Merged["perc_verizon"]= Merged["area_verizon"]/Merged["area"]
+
+Merged.to_file("Merged.gpkg", layer= "merged", driver= "GPKG")
     
